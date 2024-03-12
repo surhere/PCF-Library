@@ -108,12 +108,16 @@ export class customstringformatter implements ComponentFramework.StandardControl
             this._notifyOutputChanged();
             tempValue = tempValue.replace(/-/gi,"");
             tempValue = tempValue.replace(this._regEx!,this._patternType);
+            this._value = tempValue.replace(/-$|--$/gi,"");
             this.inputElement.value = this._value.toUpperCase();
             this.inputElement.setAttribute(this._fieldName,this._value?this._value:"");
         }
         else
         {
             this._notifyOutputChanged();
+            this._value=tempValue.substring(0,tempValue.length-1);
+            this.inputElement.value=this._value.toUpperCase();
+            this.inputElement.setAttribute(this._fieldName,this._value?this._value:"");
         }
     }
 
@@ -124,6 +128,37 @@ export class customstringformatter implements ComponentFramework.StandardControl
     public updateView(context: ComponentFramework.Context<IInputs>): void
     {
         // Add code to update control view
+        this._context = context;
+        
+        this._fieldName = context.parameters.formattedField.attributes?.LogicalName!;
+        if(context.parameters.productType.raw! != this._productType)
+        {
+            this._productType = context.parameters.productType.raw!;
+            if(this._productType!=17180002)
+            {
+                if(context.parameters.regExp1!=null)
+                {
+                    this._tempRegx = context.parameters.regExp1.raw!;
+                    this._regxPattern = this._tempRegx.split("|",3);
+                    this._tempRegx = this._regxPattern[0];
+                    this._patternType = this._regxPattern[1];
+                    this._patternLength = Number(this._regxPattern[2]);
+                    this._regEx = RegExp(this._tempRegx);
+                }
+            }
+            else
+            {
+                if(context.parameters.regExp2!=null)
+                {
+                    this._tempRegx = context.parameters.regExp2.raw!;
+                    this._regxPattern = this._tempRegx.split("|",3);
+                    this._tempRegx = this._regxPattern[0];
+                    this._patternType = this._regxPattern[1];
+                    this._patternLength = Number(this._regxPattern[2]);
+                    this._regEx = RegExp(this._tempRegx);
+                }
+            }
+        }
     }
 
     /**
